@@ -27,10 +27,10 @@ export class User extends BaseEntity {
   @Column({ type: 'varchar', length: 255 })
   password: string;
 
-  @Column({ type: 'enum', enum: UserRole })
+  @Column({ type: 'enum', enum: UserRole, default: UserRole.USER })
   role: UserRole;
 
-  @Column({ type: 'enum', enum: UserStatus })
+  @Column({ type: 'enum', enum: UserStatus, default: UserStatus.ACTIVE })
   status: UserStatus;
 
   @Column({ nullable: true })
