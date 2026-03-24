@@ -1,7 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { QueryUsersDto } from './dto/query-user.dto';
+import { PaginatedResult } from '@/common/interfaces/paginated-result.interface';
+import { User } from './entities/user.entity';
 
 @Controller('users')
 export class UsersController {
@@ -13,8 +16,8 @@ export class UsersController {
   }
 
   @Get()
-  findAll() {
-    return this.usersService.findAll();
+  findAll(@Query() query: QueryUsersDto): Promise<PaginatedResult<User>> {
+    return this.usersService.findAll(query);
   }
 
   @Get(':id')

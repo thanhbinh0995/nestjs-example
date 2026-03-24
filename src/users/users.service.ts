@@ -2,6 +2,9 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersRepository } from './users.repository';
+import { QueryUsersDto } from './dto/query-user.dto';
+import { PaginatedResult } from '@/common/interfaces/paginated-result.interface';
+import { User } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
@@ -15,8 +18,8 @@ export class UsersService {
     return this.usersRepository.create(createUserDto);
   }
 
-  findAll() {
-    return this.usersRepository.findAll();
+  findAll(query: QueryUsersDto): Promise<PaginatedResult<User>> {
+    return this.usersRepository.findAll(query);
   }
 
   findOne(id: number) {
