@@ -1,6 +1,7 @@
 import { BeforeInsert, BeforeUpdate, Column, Entity } from 'typeorm';
 import { BaseEntity } from '@/database/base.entity';
 import * as bcrypt from 'bcryptjs';
+import { Exclude } from 'class-transformer';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -24,7 +25,8 @@ export class User extends BaseEntity {
   @Column({ type: 'varchar', length: 100 })
   lastName: string;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'varchar', length: 255, select: false })
+  @Exclude()
   password: string;
 
   @Column({ type: 'enum', enum: UserRole, default: UserRole.USER })
@@ -34,6 +36,7 @@ export class User extends BaseEntity {
   status: UserStatus;
 
   @Column({ nullable: true })
+  @Exclude()
   refreshToken?: string;
 
   @Column({ nullable: true, type: 'timestamptz' })

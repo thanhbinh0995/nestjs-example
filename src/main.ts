@@ -1,9 +1,37 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { ClassSerializerInterceptor, Logger, ValidationPipe, VersioningType } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import helmet from 'helmet';
+import * as compression from 'compression';
+import * as morgan from 'morgan';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 
 async function bootstrap() {
+  const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(AppModule);
+  const configService = app.get(ConfigService);
+  const port = configService.get<number>('app.port', 3000);
+  const apiPrefix = configService.get<string>('app.apiPrefix', 'api/v1');
+  const nodeEnv = configService.get<string>('app.nodeEnv', 'development');
+
+  app.use(helmet());
+  app.enableCors({
+    origin: nodeEnv === 'production' ? configService.get('app.allowedOrigins') : '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+  });
+  app.use(compression());
+
+  // HTTP Logging (dev only)
+  if (nodeEnv === 'development') {
+    app.use(morgan('dev'));
+  }
+
+  app.setGlobalPrefix(apiPrefix);
+
+  app.enableVersioning({ type: VersioningType.URI });
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -14,7 +42,13 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(process.env.PORT ?? 3000);
+  const reflector = app.get(Reflector);
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(reflector), new TransformInterceptor());
+  app.useGlobalFilters(new HttpExceptionFilter());
+
+  await app.listen(port);
+  logger.log(`Application running on: http://localhost:${port}/${apiPrefix}`);
+  logger.log(`Environment: ${nodeEnv}`);
 }
 
 bootstrap();
