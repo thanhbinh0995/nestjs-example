@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersRepository } from './users.repository';
@@ -18,19 +18,32 @@ export class UsersService {
     return this.usersRepository.create(createUserDto);
   }
 
-  findAll(query: QueryUsersDto): Promise<PaginatedResult<User>> {
+  async findAll(query: QueryUsersDto): Promise<PaginatedResult<User>> {
     return this.usersRepository.findAll(query);
   }
 
-  findOne(id: number) {
-    return this.usersRepository.findById(id);
+  async findOne(id: string) {
+    const user = await this.usersRepository.findById(id);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    await this.findOne(id);
+    if (updateUserDto.email) {
+      const existing = await this.usersRepository.findOneByEmail(updateUserDto.email);
+      if (existing) {
+        throw new ConflictException('Email already exists');
+      }
+    }
+
+    return this.usersRepository.update(id, updateUserDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: string) {
+    await this.findOne(id);
+    await this.usersRepository.softDelete(id);
   }
 }

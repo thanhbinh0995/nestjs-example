@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { QueryUsersDto } from './dto/query-user.dto';
 import { PaginatedResult } from '@/common/interfaces/paginated-result.interface';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersRepository {
@@ -31,7 +32,9 @@ export class UsersRepository {
         { search: `%${search}%` },
       );
     }
-    if (status) qb.andWhere('user.status = :status', { status });
+    if (status) {
+      qb.andWhere('user.status = :status', { status });
+    }
 
     const allowedSortFields = ['createdAt', 'email', 'firstName', 'lastName'];
     const safeSortBy = allowedSortFields.includes(sortBy) ? sortBy : 'createdAt';
@@ -51,7 +54,7 @@ export class UsersRepository {
     };
   }
 
-  async findById(id: number): Promise<User | null> {
+  async findById(id: string): Promise<User | null> {
     return this.userRepository.findOne({ where: { id } });
   }
 
@@ -62,5 +65,18 @@ export class UsersRepository {
   async create(createUserDto: CreateUserDto): Promise<User> {
     const user = this.userRepository.create(createUserDto);
     return this.userRepository.save(user);
+  }
+
+  async update(id: string, updateUserDto: UpdateUserDto): Promise<User | null> {
+    await this.userRepository.update(id, updateUserDto);
+    return this.findById(id);
+  }
+
+  async softDelete(id: string): Promise<void> {
+    await this.userRepository.softDelete(id);
+  }
+
+  async updateLastLoginAt(id: string): Promise<void> {
+    await this.userRepository.update(id, { lastLoginAt: new Date() });
   }
 }
