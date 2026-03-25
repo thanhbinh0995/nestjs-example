@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
-import { UsersModule } from '@/users/users.module';
+import { UsersModule } from '@/modules/users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from '@/users/entities/user.entity';
-import { UsersRepository } from '@/users/users.repository';
+import { User } from '@/modules/users/entities/user.entity';
+import { UsersRepository } from '@/modules/users/users.repository';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 // import { JwtStrategy } from './strategies/jwt.strategy';
