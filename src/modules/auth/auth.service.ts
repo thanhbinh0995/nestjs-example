@@ -7,11 +7,8 @@ import { UsersRepository } from '@/modules/users/users.repository';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { JwtPayload } from './strategies/jwt.strategy';
-
-interface AuthTokens {
-  accessToken: string;
-  refreshToken: string;
-}
+import { User } from '@/modules/users/entities/user.entity';
+import { AuthTokens } from '@/types/auth';
 
 @Injectable()
 export class AuthService {
@@ -26,7 +23,7 @@ export class AuthService {
     return 'Register user ';
   }
 
-  async login(loginDto: LoginDto) {
+  async login(loginDto: LoginDto): Promise<{ user: Omit<User, 'password'>; tokens: AuthTokens }> {
     const user = await this.userRepository.findOneByEmail(loginDto.email, true);
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
@@ -37,7 +34,7 @@ export class AuthService {
     }
     const tokens = await this.generateTokens(user.id, user.email, user.role);
 
-    return { ...omit(user, ['password']), tokens };
+    return { user: omit(user, ['password']), tokens };
   }
 
   private async generateTokens(userId: string, email: string, role: string): Promise<AuthTokens> {
