@@ -58,8 +58,16 @@ export class UsersRepository {
     return this.userRepository.findOne({ where: { id } });
   }
 
-  async findOneByEmail(email: string): Promise<User | null> {
-    return this.userRepository.findOne({ where: { email } });
+  async findOneByEmail(email: string, withPassword = false): Promise<User | null> {
+    const qb = this.userRepository
+      .createQueryBuilder('user')
+      .where('user.email = :email', { email });
+
+    if (withPassword) {
+      qb.addSelect('user.password');
+    }
+
+    return qb.getOne();
   }
 
   async create(createUserDto: CreateUserDto): Promise<User> {

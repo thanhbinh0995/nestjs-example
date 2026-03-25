@@ -13,7 +13,7 @@ import { UserRole } from '../entities/user.entity';
 export class CreateUserDto {
   @IsEmail()
   @IsNotEmpty()
-  @Transform(({ value }) => value.toLowerCase())
+  @Transform(({ value }) => value?.toLowerCase().trim())
   email: string;
 
   @IsString()
