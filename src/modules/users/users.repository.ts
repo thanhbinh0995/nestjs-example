@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { FindOptionsWhere, Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { PaginatedResult } from '@/common/interfaces/paginated-result.interface';
 import { CreateUserDto } from './dto/create-user.dto';
 import { QueryUsersDto } from './dto/query-user.dto';
-import { PaginatedResult } from '@/common/interfaces/paginated-result.interface';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
