@@ -1,14 +1,13 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { PaginatedResult } from '@/common/interfaces/paginated-result.interface';
 import { Auth } from '@/common/decorators/auth.decorator';
-import { User } from './entities/user.entity';
+import { Roles } from '@/common/decorators/roles.decorator';
+import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { QueryUsersDto } from './dto/query-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
-import { UserRole } from './entities/user.entity';
-import { Roles } from '@/common/decorators/roles.decorator';
-
+import { User, UserRole } from './entities/user.entity';
 @Auth()
 @Controller('users')
 export class UsersController {
@@ -27,8 +26,8 @@ export class UsersController {
   }
 
   @Get('me')
-  getMe() {
-    return 'Current user';
+  getMe(@CurrentUser() user: User) {
+    return user;
   }
 
   @Roles(UserRole.ADMIN)
