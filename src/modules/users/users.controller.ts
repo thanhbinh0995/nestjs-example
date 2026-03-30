@@ -8,6 +8,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
 import { User, UserRole } from './entities/user.entity';
+
 @Auth()
 @Controller('users')
 export class UsersController {

@@ -7,6 +7,7 @@ import * as compression from 'compression';
 import * as morgan from 'morgan';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
+import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
@@ -43,7 +44,11 @@ async function bootstrap() {
   );
 
   const reflector = app.get(Reflector);
-  app.useGlobalInterceptors(new ClassSerializerInterceptor(reflector), new TransformInterceptor());
+  app.useGlobalInterceptors(
+    new ClassSerializerInterceptor(reflector),
+    new TransformInterceptor(),
+    new LoggingInterceptor(),
+  );
   app.useGlobalFilters(new HttpExceptionFilter());
 
   await app.listen(port);
