@@ -8,6 +8,7 @@ import jwtConfig from './config/jwt.config';
 import { DatabaseConfig } from './database/database.config';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
+import { ProfileModule } from './modules/profile/profile.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { UsersModule } from './modules/users/users.module';
     HealthModule,
     UsersModule,
     AuthModule,
+    ProfileModule,
   ],
   controllers: [],
   providers: [],

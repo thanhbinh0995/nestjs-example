@@ -1,4 +1,4 @@
-import { BeforeInsert, BeforeUpdate, Column, Entity } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, Entity, OneToOne } from 'typeorm';
 import { BaseEntity } from '@/database/base.entity';
 import * as bcrypt from 'bcryptjs';
 import { Exclude } from 'class-transformer';
@@ -41,6 +41,9 @@ export class User extends BaseEntity {
 
   @Column({ nullable: true, type: 'timestamptz' })
   lastLoginAt?: Date;
+
+  @OneToOne('Profile', 'user', { cascade: true, eager: false })
+  profile?: any;
 
   @BeforeInsert()
   @BeforeUpdate()
