@@ -1,7 +1,8 @@
-import { BeforeInsert, BeforeUpdate, Column, Entity, OneToOne } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, OneToOne } from 'typeorm';
 import { BaseEntity } from '@/database/base.entity';
 import * as bcrypt from 'bcryptjs';
 import { Exclude } from 'class-transformer';
+import { Post } from '@/modules/posts/post.entity';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -44,6 +45,9 @@ export class User extends BaseEntity {
 
   @OneToOne('Profile', 'user', { cascade: true, eager: false })
   profile?: any;
+
+  @OneToMany('Post', 'author')
+  posts?: Post[];
 
   @BeforeInsert()
   @BeforeUpdate()

@@ -9,6 +9,7 @@ import { DatabaseConfig } from './database/database.config';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { ProfileModule } from './modules/profile/profile.module';
+import { PostsModule } from './modules/posts/posts.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { ProfileModule } from './modules/profile/profile.module';
     UsersModule,
     AuthModule,
     ProfileModule,
+    PostsModule,
   ],
   controllers: [],
   providers: [],
