@@ -49,6 +49,9 @@ export class User extends BaseEntity {
   @OneToMany('Post', 'author')
   posts?: Post[];
 
+  @OneToMany('Comment', 'author')
+  comments?: Comment[];
+
   @BeforeInsert()
   @BeforeUpdate()
   async hashPassword() {

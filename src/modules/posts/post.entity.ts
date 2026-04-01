@@ -1,5 +1,5 @@
 import { BaseEntity } from '@/database/base.entity';
-import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 
 export enum PostStatus {
@@ -42,4 +42,7 @@ export class Post extends BaseEntity {
 
   @Column()
   authorId: string;
+
+  @OneToMany('Comment', 'post')
+  comments?: Comment[];
 }
