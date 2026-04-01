@@ -1,6 +1,17 @@
 import { BaseEntity } from '@/database/base.entity';
-import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
 import { User } from '../users/entities/user.entity';
+import { Tag } from '../tags/tag.entity';
+import { Comment } from '../comments/comment.entity';
 
 export enum PostStatus {
   DRAFT = 'draft',
@@ -45,4 +56,12 @@ export class Post extends BaseEntity {
 
   @OneToMany('Comment', 'post')
   comments?: Comment[];
+
+  @ManyToMany(() => Tag, (tag) => tag.posts, { cascade: ['insert', 'update'] })
+  @JoinTable({
+    name: 'post_tags',
+    joinColumn: { name: 'postId', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'tagId', referencedColumnName: 'id' },
+  })
+  tags?: Tag[];
 }

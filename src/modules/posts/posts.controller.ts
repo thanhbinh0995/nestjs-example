@@ -1,4 +1,14 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { Public } from '@/common/decorators/public.decorator';
 import { QueryPostsDto } from './dto/query-posts.dto';
@@ -21,5 +31,28 @@ export class PostsController {
   @Post()
   create(@CurrentUser() user: User, @Body() createPostDto: CreatePostDto) {
     return this.postsService.create(user.id, createPostDto);
+  }
+
+  @Public()
+  @Get(':id')
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
+    this.postsService.incrementViewCount(id);
+    return this.postsService.findOne(id);
+  }
+
+  @Auth()
+  @Patch(':id/tags')
+  updateTags(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: { tagIds: string[] },
+    @CurrentUser() user: User,
+  ) {
+    return this.postsService.updateTags(id, body.tagIds, user.id);
+  }
+
+  @Auth()
+  @Delete(':id')
+  delete(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+    return this.postsService.delete(id, user.id);
   }
 }

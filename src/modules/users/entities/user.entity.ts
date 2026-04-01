@@ -1,4 +1,12 @@
-import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, OneToOne } from 'typeorm';
+import {
+  BeforeInsert,
+  BeforeUpdate,
+  Column,
+  Entity,
+  ManyToMany,
+  OneToMany,
+  OneToOne,
+} from 'typeorm';
 import { BaseEntity } from '@/database/base.entity';
 import * as bcrypt from 'bcryptjs';
 import { Exclude } from 'class-transformer';
@@ -51,6 +59,13 @@ export class User extends BaseEntity {
 
   @OneToMany('Comment', 'author')
   comments?: Comment[];
+
+  // @ManyToMany('Tags', 'users', { cascade: true, eager: true })
+  // tags?: Tag[];
+
+  get fullName(): string {
+    return `${this.firstName} ${this.lastName}`;
+  }
 
   @BeforeInsert()
   @BeforeUpdate()

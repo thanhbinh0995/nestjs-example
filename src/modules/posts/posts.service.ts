@@ -1,16 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Post, PostStatus } from './post.entity';
 import { QueryPostsDto } from './dto/query-posts.dto';
 import { PaginatedResult } from '@/common/interfaces/paginated-result.interface';
 import { CreatePostDto } from './dto/create-post.dto';
+import { Tag } from '../tags/tag.entity';
 
 @Injectable()
 export class PostsService {
   constructor(
     @InjectRepository(Post)
     private readonly postRepository: Repository<Post>,
+    @InjectRepository(Tag)
+    private readonly tagRepository: Repository<Tag>,
   ) {}
 
   async findAll(query: QueryPostsDto): Promise<PaginatedResult<Post>> {
@@ -62,13 +65,66 @@ export class PostsService {
   }
 
   async create(authorId: string, createPostDto: CreatePostDto): Promise<Post> {
+    const { tagIds, ...rest } = createPostDto;
+    const tags = tagIds?.length ? await this.tagRepository.findBy({ id: In(tagIds) }) : [];
     const post = this.postRepository.create({
-      ...createPostDto,
+      ...rest,
       authorId,
-      slug: createPostDto.slug || this.slugify(createPostDto.title),
-      publishedAt: createPostDto.status === PostStatus.PUBLISHED ? new Date() : undefined,
+      tags,
+      slug: rest.slug || this.slugify(rest.title),
+      publishedAt: rest.status === PostStatus.PUBLISHED ? new Date() : undefined,
     });
     return this.postRepository.save(post);
+  }
+
+  async findOne(id: string): Promise<Post> {
+    const post = await this.postRepository.findOne({
+      where: { id },
+      relations: {
+        author: true,
+        tags: true,
+        comments: {
+          author: true,
+        },
+      },
+    });
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+    return post;
+  }
+
+  async updateTags(id: string, tagIds: string[], userId: string): Promise<Post> {
+    const post = await this.postRepository.findOne({
+      where: { id, authorId: userId },
+      relations: {
+        tags: true,
+      },
+    });
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+    if (post.authorId !== userId) {
+      throw new ForbiddenException('You are not the author of this post');
+    }
+    const tags = tagIds?.length ? await this.tagRepository.findBy({ id: In(tagIds) }) : [];
+    post.tags = tags;
+    return this.postRepository.save(post);
+  }
+
+  async incrementViewCount(id: string): Promise<void> {
+    await this.postRepository.increment({ id }, 'viewCount', 1);
+  }
+
+  async delete(id: string, userId: string): Promise<void> {
+    const post = await this.postRepository.findOne({ where: { id, authorId: userId } });
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+    if (post.authorId !== userId) {
+      throw new ForbiddenException('You are not the author of this post');
+    }
+    await this.postRepository.softDelete(id);
   }
 
   private slugify(title: string): string {
