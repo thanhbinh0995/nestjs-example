@@ -12,6 +12,7 @@ import { ProfileModule } from './modules/profile/profile.module';
 import { PostsModule } from './modules/posts/posts.module';
 import { CommentsModule } from './modules/comments/comments.module';
 import { TagsModule } from './modules/tags/tags.module';
+import { UploadModule } from './modules/upload/upload.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { TagsModule } from './modules/tags/tags.module';
     PostsModule,
     CommentsModule,
     TagsModule,
+    UploadModule,
   ],
   controllers: [],
   providers: [],
