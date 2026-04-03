@@ -48,7 +48,7 @@ export class CommentsService {
     );
   }
 
-  async updateComment(commentId: string, content: string, userId: string): Promise<Comment> {
+  async update(commentId: string, content: string, userId: string): Promise<Comment> {
     const comment = await this.commentRepository.findOne({
       where: { id: commentId },
     });
@@ -63,7 +63,7 @@ export class CommentsService {
     return this.commentRepository.save(comment);
   }
 
-  async deleteComment(commentId: string, userId: string): Promise<void> {
+  async remove(commentId: string, userId: string): Promise<void> {
     const comment = await this.commentRepository.findOne({
       where: { id: commentId },
     });
@@ -73,6 +73,6 @@ export class CommentsService {
     if (comment.authorId !== userId) {
       throw new ForbiddenException('You are not the author of this comment');
     }
-    await this.commentRepository.delete(commentId);
+    await this.commentRepository.softDelete(commentId);
   }
 }

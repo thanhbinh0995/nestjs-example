@@ -1,20 +1,21 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ConflictException } from '@nestjs/common';
+import { ConflictException, NotFoundException } from '@nestjs/common';
 import { UsersService } from '../users.service';
-import { UserRole, UserStatus } from '../entities/user.entity';
 import { UsersRepository } from '../users.repository';
 import { CreateUserDto } from '../dto/create-user.dto';
+import { User, UserRole, UserStatus } from '../entities/user.entity';
 
-const mockUser = {
-  id: 'uuid-1',
-  email: 'john@example.com',
-  firstName: 'John',
-  lastName: 'Doe',
-  role: UserRole.USER,
-  status: UserStatus.ACTIVE,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-};
+const mockUser = (): User =>
+  ({
+    id: 'uuid-1',
+    email: 'john@example.com',
+    firstName: 'John',
+    lastName: 'Doe',
+    role: UserRole.USER,
+    status: UserStatus.ACTIVE,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }) as User;
 
 const mockUsersRepository = () => ({
   create: jest.fn(),
@@ -34,12 +35,8 @@ describe('UsersService', () => {
       providers: [UsersService, { provide: UsersRepository, useFactory: mockUsersRepository }],
     }).compile();
 
-    service = module.get(UsersService);
+    service = module.get<UsersService>(UsersService);
     repo = module.get(UsersRepository);
-  });
-
-  it('should be defined', () => {
-    expect(service).toBeDefined();
   });
 
   describe('create', () => {
@@ -51,7 +48,7 @@ describe('UsersService', () => {
         password: 'Password123!',
       };
       repo.findOneByEmail.mockResolvedValue(null);
-      repo.create.mockResolvedValue(mockUser);
+      repo.create.mockResolvedValue(mockUser());
 
       const result = await service.create(dto);
       expect(result).toBeDefined();
@@ -59,7 +56,7 @@ describe('UsersService', () => {
     });
 
     it('should throw ConflictException if email already exists', async () => {
-      repo.findOneByEmail.mockResolvedValue(mockUser);
+      repo.findOneByEmail.mockResolvedValue(mockUser());
 
       await expect(
         service.create({
@@ -69,6 +66,33 @@ describe('UsersService', () => {
           password: 'Password123!',
         }),
       ).rejects.toThrow(ConflictException);
+    });
+  });
+
+  describe('findOne', () => {
+    it('should return a user if found', async () => {
+      repo.findById.mockResolvedValue(mockUser());
+      const result = await service.findOne('uuid-1');
+      expect(result).toBeDefined();
+      expect(result.id).toBe('uuid-1');
+    });
+
+    it('should throw NotFoundException if user not found', async () => {
+      repo.findById.mockResolvedValue(null);
+      await expect(service.findOne('bad-id')).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('remove', () => {
+    it('should soft-delete a user', async () => {
+      repo.findById.mockResolvedValue(mockUser());
+      await service.remove('uuid-1');
+      expect(repo.softDelete).toHaveBeenCalledWith('uuid-1');
+    });
+
+    it('should throw NotFoundException if user not found', async () => {
+      repo.findById.mockResolvedValue(null);
+      await expect(service.remove('bad-id')).rejects.toThrow(NotFoundException);
     });
   });
 });

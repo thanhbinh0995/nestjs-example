@@ -30,6 +30,10 @@ export class UsersService {
     return user;
   }
 
+  async findByEmail(email: string, withPassword = false): Promise<User | null> {
+    return this.usersRepository.findOneByEmail(email, withPassword);
+  }
+
   async update(id: string, updateUserDto: UpdateUserDto) {
     await this.findOne(id);
     if (updateUserDto.email) {

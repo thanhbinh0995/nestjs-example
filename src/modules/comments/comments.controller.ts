@@ -35,12 +35,12 @@ export class CommentsController {
     @Body() updateCommentDto: { content: string },
     @CurrentUser() user: User,
   ) {
-    return this.commentsService.updateComment(id, updateCommentDto.content, user.id);
+    return this.commentsService.update(id, updateCommentDto.content, user.id);
   }
 
   @Auth()
   @Delete(':id')
   remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
-    return this.commentsService.deleteComment(id, user.id);
+    return this.commentsService.remove(id, user.id);
   }
 }
