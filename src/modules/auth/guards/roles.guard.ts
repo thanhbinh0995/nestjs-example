@@ -1,8 +1,7 @@
-import { ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
+import { ExecutionContext, ForbiddenException, Injectable, CanActivate } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { UserRole } from '@/modules/users/entities/user.entity';
 import { ROLES_KEY } from '@/common/decorators/roles.decorator';
-import { CanActivate } from '@nestjs/common';
 import { isEmpty } from 'class-validator';
 
 @Injectable()
