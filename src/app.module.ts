@@ -13,6 +13,7 @@ import { PostsModule } from './modules/posts/posts.module';
 import { CommentsModule } from './modules/comments/comments.module';
 import { TagsModule } from './modules/tags/tags.module';
 import { UploadModule } from './modules/upload/upload.module';
+import { GrpcModule } from './grpc/grpc.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { UploadModule } from './modules/upload/upload.module';
       useClass: DatabaseConfig,
     }),
     HealthModule,
+    GrpcModule,
     UsersModule,
     AuthModule,
     ProfileModule,

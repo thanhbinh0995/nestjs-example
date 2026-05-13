@@ -1,4 +1,7 @@
 import { NestFactory, Reflector } from '@nestjs/core';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { join } from 'node:path';
+import { ReflectionService } from '@grpc/reflection';
 import { AppModule } from './app.module';
 import { ClassSerializerInterceptor, Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -14,6 +17,8 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
   const port = configService.get<number>('app.port', 3000);
+  const grpcPort = configService.get<number>('app.grpcPort', 50051);
+  const grpcReflection = configService.get<boolean>('app.grpcReflection', true);
   const apiPrefix = configService.get<string>('app.apiPrefix', 'api/v1');
   const nodeEnv = configService.get<string>('app.nodeEnv', 'development');
 
@@ -51,8 +56,28 @@ async function bootstrap() {
   );
   app.useGlobalFilters(new HttpExceptionFilter());
 
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.GRPC,
+    options: {
+      package: 'health',
+      protoPath: join(__dirname, 'proto', 'health.proto'),
+      url: `0.0.0.0:${grpcPort}`,
+      ...(grpcReflection && {
+        onLoadPackageDefinition(pkg, server) {
+          const reflection = new ReflectionService(pkg);
+          reflection.addToServer(server);
+        },
+      }),
+    },
+  });
+
+  await app.startAllMicroservices();
   await app.listen(port);
   logger.log(`Application running on: http://localhost:${port}/${apiPrefix}`);
+  logger.log(`gRPC listening on 0.0.0.0:${grpcPort} (package: health)`);
+  if (grpcReflection) {
+    logger.log('gRPC reflection enabled (grpcurl/postman can introspect without -proto)');
+  }
   logger.log(`Environment: ${nodeEnv}`);
 }
 
