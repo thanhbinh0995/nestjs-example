@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package posts;
+
+service PostService {
+  rpc ListPosts (ListPostsRequest) returns (ListPostsResponse);
+}
+
+message PostAuthor {
+  string id = 1;
+  string first_name = 2;
+  string last_name = 3;
+  string email = 4;
+}
+
+message Post {
+  string id = 1;
+  string title = 2;
+  string content = 3;
+  string slug = 4;
+  string status = 5;
+  int32 view_count = 6;
+  int32 like_count = 7;
+  string published_at = 8;
+  string author_id = 9;
+  string created_at = 10;
+  string updated_at = 11;
+  PostAuthor author = 12;
+}
+
+message ListPostsRequest {
+  int32 page = 1;
+  int32 limit = 2;
+  string search = 3;
+  string status = 4;
+  string author_id = 5;
+  string sort_by = 6;
+  string sort_order = 7;
+  bool with_author = 8;
+}
+
+message ListPostsResponse {
+  repeated Post posts = 1;
+  int32 total = 2;
+  int32 page = 3;
+  int32 limit = 4;
+  int32 total_pages = 5;
+}

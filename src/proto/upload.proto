@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package upload;
+
+service DocumentUploadService {
+  rpc UploadDocument (stream UploadDocumentChunk) returns (UploadDocumentResponse);
+}
+
+message UploadDocumentMetadata {
+  string original_name = 1;
+  string mimetype = 2;
+}
+
+message UploadDocumentChunk {
+  UploadDocumentMetadata metadata = 1;
+  bytes data = 2;
+}
+
+message UploadDocumentResponse {
+  string original_name = 1;
+  string filename = 2;
+  string mimetype = 3;
+  int64 size = 4;
+  string url = 5;
+}

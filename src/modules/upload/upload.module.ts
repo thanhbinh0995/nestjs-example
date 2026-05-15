@@ -13,13 +13,13 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       imports: [ConfigModule],
       useFactory: (config: ConfigService) => ({
         storage: diskStorage({
-          destination: join(process.cwd(), config.get('UPLOAD_DEST', 'uploads')),
+          destination: join(process.cwd(), config.get<string>('upload.dest', 'uploads')),
           filename: (_req, file, cb) => {
             cb(null, `${uuid()}${extname(file.originalname)}`);
           },
         }),
         limits: {
-          fileSize: config.get<number>('UPLOAD_MAX_MB', 5) * 1024 * 1024,
+          fileSize: config.get<number>('upload.maxMb', 5) * 1024 * 1024,
         },
       }),
       inject: [ConfigService],

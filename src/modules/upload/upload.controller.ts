@@ -8,7 +8,7 @@ import {
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
-import { UploadService } from './upload.service';
+import { ALLOWED_DOCUMENT_MIMETYPES, UploadService } from './upload.service';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { Auth } from '@/common/decorators/auth.decorator';
 
@@ -41,13 +41,7 @@ export class UploadController {
   @Post('documents')
   @UseInterceptors(FilesInterceptor('files', 10))
   uploadDocuments(@UploadedFiles() files: Express.Multer.File[]) {
-    files.forEach((f) =>
-      this.uploadService.validateMimeType(f, [
-        'application/pdf',
-        'application/msword',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      ]),
-    );
+    files.forEach((f) => this.uploadService.validateMimeType(f, ALLOWED_DOCUMENT_MIMETYPES));
     return files.map((f) => this.uploadService.toFileInfo(f));
   }
 }

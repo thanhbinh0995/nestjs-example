@@ -59,8 +59,12 @@ async function bootstrap() {
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.GRPC,
     options: {
-      package: 'health',
-      protoPath: join(__dirname, 'proto', 'health.proto'),
+      package: ['health', 'upload', 'posts'],
+      protoPath: [
+        join(__dirname, 'proto', 'health.proto'),
+        join(__dirname, 'proto', 'upload.proto'),
+        join(__dirname, 'proto', 'posts.proto'),
+      ],
       url: `0.0.0.0:${grpcPort}`,
       ...(grpcReflection && {
         onLoadPackageDefinition(pkg, server) {
@@ -74,7 +78,7 @@ async function bootstrap() {
   await app.startAllMicroservices();
   await app.listen(port);
   logger.log(`Application running on: http://localhost:${port}/${apiPrefix}`);
-  logger.log(`gRPC listening on 0.0.0.0:${grpcPort} (package: health)`);
+  logger.log(`gRPC listening on 0.0.0.0:${grpcPort} (packages: health, upload, posts)`);
   if (grpcReflection) {
     logger.log('gRPC reflection enabled (grpcurl/postman can introspect without -proto)');
   }

@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HealthModule } from './health/health.module';
 import appConfig from './config/app.config';
+import uploadConfig from './config/upload.config';
 import databaseConfig from './config/database.config';
 import jwtConfig from './config/jwt.config';
 import { DatabaseConfig } from './database/database.config';
@@ -19,7 +20,7 @@ import { GrpcModule } from './grpc/grpc.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [appConfig, databaseConfig, jwtConfig],
+      load: [appConfig, uploadConfig, databaseConfig, jwtConfig],
       envFilePath: ['.env'],
       cache: true,
     }),
